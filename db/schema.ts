@@ -12,10 +12,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
-// ----------------------------------------------------
-// ENUMS
-// ----------------------------------------------------
-
 export const userRoleEnum = pgEnum("user_role", [
   "REPORTER",
   "STAFF",
@@ -51,18 +47,14 @@ export const ticketEventTypeEnum = pgEnum("ticket_event_type", [
   "TICKET_CLOSED",
 ]);
 
-// ----------------------------------------------------
-// TABLES
-// ----------------------------------------------------
-
 export const teams = pgTable("teams", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }).notNull().unique(),
   description: text("description"),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+  createdAt: timestamp("created_at", {mode: "date" })
     .defaultNow()
     .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+  updatedAt: timestamp("updated_at", {mode: "date" })
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
@@ -79,11 +71,11 @@ export const users = pgTable(
     avatarUrl: text("avatar_url"),
     role: userRoleEnum("role").default("REPORTER").notNull(),
     teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),
-    lastLoginAt: timestamp("last_login_at", { withTimezone: true, mode: "date" }),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    lastLoginAt: timestamp("last_login_at", {mode: "date" }),
+    createdAt: timestamp("created_at", {mode: "date" })
       .defaultNow()
       .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+    updatedAt: timestamp("updated_at", {mode: "date" })
       .defaultNow()
       .notNull()
       .$onUpdate(() => new Date()),
@@ -105,10 +97,10 @@ export const categories = pgTable("categories", {
   defaultTeamId: uuid("default_team_id").references(() => teams.id, {
     onDelete: "set null",
   }),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+  createdAt: timestamp("created_at", {mode: "date" })
     .defaultNow()
     .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+  updatedAt: timestamp("updated_at", {mode: "date" })
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
@@ -122,10 +114,10 @@ export const locations = pgTable("locations", {
   room: varchar("room", { length: 50 }),
   latitude: numeric("latitude", { precision: 10, scale: 7 }),
   longitude: numeric("longitude", { precision: 10, scale: 7 }),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+  createdAt: timestamp("created_at", { mode: "date" })
     .defaultNow()
     .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+  updatedAt: timestamp("updated_at", {mode: "date" })
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date()),
@@ -155,15 +147,15 @@ export const tickets = pgTable(
     locationId: uuid("location_id")
       .notNull()
       .references(() => locations.id, { onDelete: "restrict" }),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    createdAt: timestamp("created_at", {mode: "date" })
       .defaultNow()
       .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+    updatedAt: timestamp("updated_at", {mode: "date" })
       .defaultNow()
       .notNull()
       .$onUpdate(() => new Date()),
-    resolvedAt: timestamp("resolved_at", { withTimezone: true, mode: "date" }),
-    closedAt: timestamp("closed_at", { withTimezone: true, mode: "date" }),
+    resolvedAt: timestamp("resolved_at", {mode: "date" }),
+    closedAt: timestamp("closed_at", {mode: "date" }),
   },
   (table) => [
     index("tickets_status_idx").on(table.status),
@@ -188,10 +180,10 @@ export const ticketComments = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),
     message: text("message").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    createdAt: timestamp("created_at", {mode: "date" })
       .defaultNow()
       .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+    updatedAt: timestamp("updated_at", {mode: "date" })
       .defaultNow()
       .notNull()
       .$onUpdate(() => new Date()),
@@ -218,7 +210,7 @@ export const ticketAttachments = pgTable(
     fileUrl: text("file_url").notNull(),
     mimeType: varchar("mime_type", { length: 100 }).notNull(),
     fileSize: integer("file_size").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    createdAt: timestamp("created_at", {mode: "date" })
       .defaultNow()
       .notNull(),
   },
@@ -244,7 +236,7 @@ export const ticketEvents = pgTable(
     oldValue: text("old_value"),
     newValue: text("new_value"),
     note: text("note"),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    createdAt: timestamp("created_at", {mode: "date" })
       .defaultNow()
       .notNull(),
   },
@@ -266,10 +258,10 @@ export const feedback = pgTable(
       .references(() => tickets.id, { onDelete: "cascade" }),
     rating: integer("rating").notNull(),
     comment: text("comment"),
-    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    createdAt: timestamp("created_at", {mode: "date" })
       .defaultNow()
       .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+    updatedAt: timestamp("updated_at", {mode: "date" })
       .defaultNow()
       .notNull()
       .$onUpdate(() => new Date()),
@@ -282,7 +274,6 @@ export const feedback = pgTable(
   ]
 );
 
-// Table aliases for convenience
 export const teamsTable = teams;
 export const usersTable = users;
 export const categoriesTable = categories;
@@ -292,10 +283,6 @@ export const ticketCommentsTable = ticketComments;
 export const ticketAttachmentsTable = ticketAttachments;
 export const ticketEventsTable = ticketEvents;
 export const feedbackTable = feedback;
-
-// ----------------------------------------------------
-// DRIZZLE RELATIONS
-// ----------------------------------------------------
 
 export const teamsRelations = relations(teams, ({ many }) => ({
   users: many(users),

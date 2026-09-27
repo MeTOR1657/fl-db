@@ -20,14 +20,7 @@ export const connectionString: string =
   process.env.DATABASE_URL ||
   `postgres://${dbUser}:${dbPassword}@${dbHost}:${dbPort}/${dbName}`;
 
-/**
- * Generates a unique readable ticket number in the format FAC-YYYY-0001.
- * Increments the sequence number per year based on existing tickets in the database.
- *
- * @param db - Drizzle database instance (defaults to dbClient)
- * @param year - The target year for the ticket (defaults to current year)
- * @returns Formatted ticket number string (e.g., "FAC-2026-0001")
- */
+
 export async function generateTicketNumber(
   db?: PostgresJsDatabase<any>,
   year: number = new Date().getFullYear()
