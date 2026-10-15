@@ -98,42 +98,23 @@ A DBML file compatible with [dbdiagram.io](https://dbdiagram.io) is provided at 
 
 ---
 
-## Getting Started
+## Install and run
 
-### 1. Environment Configuration
+This service provides PostgreSQL for the backend. Keep `pf-db/.env` and `pf-backend/.env` aligned on `POSTGRES_DB`, `POSTGRES_APP_USER`, and `POSTGRES_APP_PASSWORD`. For local backend development, the backend connection string uses `localhost:5432`; when both services run in Compose, use the database service/container hostname and port 5432.
 
-Copy `.env.example` to `.env` and set your credentials:
+### Standalone database (PowerShell)
 
-```bash
-cp .env.example .env
-```
-
-> **Note**: Never commit `.env` or reveal credentials in version control.
-
-### 2. Line Endings (Windows)
-
-If developing on Windows, ensure bash scripts inside `_entrypoint/` have LF line endings:
-
-```bash
-pnpm run eol
-```
-
-### 3. Start PostgreSQL with Docker Compose
-
-Start the database container using Docker Compose:
-
-```bash
+```powershell
+Copy-Item .env.example .env   # first run only; set strong passwords
 docker compose up -d
+docker compose ps
 ```
 
-To stop the container:
+The standalone database compose project creates the `preflight_pf-net` network used by the backend compose project. Start the backend only after PostgreSQL is ready. Stop PostgreSQL with `docker compose down`; this keeps its named volume. `docker compose down -v` deletes the database volume and all stored data.
 
-```bash
-docker compose down
-```
+### Full application stack
 
----
-
+For the frontend, backend, database, health checks, and automatic backend migrations together, use `pf-deploy/docker-compose.yml` and configure `pf-deploy/.env`. That is the recommended setup for a complete installation.
 ## Migrations & Database Operations
 
 The repository uses **Drizzle ORM** and **Drizzle Kit** to manage schema migrations:
@@ -172,3 +153,4 @@ Compiles TypeScript files and validates types across the codebase:
 ```bash
 pnpm run build
 ```
+
