@@ -100,7 +100,7 @@ A DBML file compatible with [dbdiagram.io](https://dbdiagram.io) is provided at 
 
 ## Install and run
 
-This service provides PostgreSQL for the backend. Keep `pf-db/.env` and `pf-backend/.env` aligned on `POSTGRES_DB`, `POSTGRES_APP_USER`, and `POSTGRES_APP_PASSWORD`. For local backend development, the backend connection string uses `localhost:5432`; when both services run in Compose, use the database service/container hostname and port 5432.
+This service provides PostgreSQL for the backend. Keep `pf-db/.env` and `pf-backend/.env` aligned on `POSTGRES_DB`, `POSTGRES_APP_USER`, and `POSTGRES_APP_PASSWORD`. PostgreSQL listens on port 5432 inside Docker and maps to `127.0.0.1:6013` on the host by default. Compose binds to loopback so external clients can reach it through an SSH tunnel. When both services run in Compose, use the database service/container hostname and port 5432.
 
 ### Standalone database (PowerShell)
 
@@ -110,7 +110,28 @@ docker compose up -d
 docker compose ps
 ```
 
-The standalone database compose project creates the `preflight_pf-net` network used by the backend compose project. Start the backend only after PostgreSQL is ready. Stop PostgreSQL with `docker compose down`; this keeps its named volume. `docker compose down -v` deletes the database volume and all stored data.
+The standalone database compose project creates the `preflight_pf-net` network used by the backend compose project. Start the backend only after PostgreSQL is healthy. Stop PostgreSQL with `docker compose down`; this keeps its named volume. `docker compose down -v` deletes the database volume and all stored data.
+
+### Deploy on a Linux server over SSH
+
+Copy this repository to the server, create `.env` from `.env.example`, and replace both placeholder passwords with strong secrets. Then start PostgreSQL:
+
+```bash
+ssh -p 6013 USER@SERVER
+cd /path/to/pf-db
+cp .env.example .env
+nano .env  # set unique strong passwords
+docker compose up -d
+docker compose ps
+```
+
+Here `6013` is the SSH server port. PostgreSQL is also published on server loopback port 6013; connect from your computer through an SSH local forward (in another terminal):
+
+```bash
+ssh -p 6013 -N -L 6013:127.0.0.1:6013 USER@SERVER
+```
+
+Then connect to `127.0.0.1:6013` from the client. If the SSH daemon uses a different port, change `-p 6013` in both SSH commands; keep `POSTGRES_PORT=6013` for the database tunnel. Applications running in the same Compose network should use the PostgreSQL service name and port 5432 instead. Do not set their container connection to localhost.
 
 ### Full application stack
 
